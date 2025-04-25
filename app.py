@@ -1,47 +1,56 @@
-from flask import Flask, request, render_template, jsonify
-from pony.orm import Database, Required, db_session
+from flask import Flask, request, jsonify
+from flask import render_template
+from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
-# database connection
-db = Database()
-db.bind(
-    provider='postgres',
-    user='postgres',
-    password='HYRQHMQHtCcQDV2NXhcC',
-    host='event.genx-pishehkav-data.svc',
-    port=5432,
-    database='postgres'
-)
+# ---------- اتصال به دیتابیس PostgreSQL ----------
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:HYRQHMQHtCcQDV2NXhcC@81.12.30.45:30328/postgres'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-class Registration(db.Entity):
-    name = Required(str)
-    email = Required(str)
-    phone = Required(str)
-    event = Required(str)
+# ---------- مدل دیتابیس ----------
+db = SQLAlchemy(app)
 
-db.generate_mapping(create_tables=True)
+class Registration(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
+    event = db.Column(db.String(50), nullable=False)
 
+# ---------- ساخت جدول‌ها ----------
+with app.app_context():
+    db.create_all()
+
+# ---------- صفحه اصلی ----------
 @app.route('/')
-def index():
-    return render_template('form.html')
+def home():
+    return render_template('form.html')  # Serve the HTML page
 
+# ---------- API ثبت‌نام ----------
 @app.route('/register', methods=['POST'])
-@db_session
 def register():
-    name = request.form.get('name', '').strip()
-    email = request.form.get('email', '').strip()
-    phone = request.form.get('phone', '').strip()
-    event = request.form.get('event', '').strip()
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    event = request.form.get('event')
 
-    # simple server-side validation
-    if not all([name, email, phone, event]):
-        return jsonify({'status': 'error', 'message': 'All fields are required.'}), 400
+    if not name or not email or not phone or not event:
+        return jsonify({'error': 'Invalid input'}), 400
 
-    Registration(name=name, email=email, phone=phone, event=event)
-    return jsonify({'status': 'success', 'message': 'Registration completed.'})
+    new_registration = Registration(
+        name=name,
+        email=email,
+        phone=phone,
+        event=event
+    )
+    db.session.add(new_registration)
+    db.session.commit()
 
+    return jsonify({'message': 'Registration successful!'}), 200
+
+# ---------- اجرای برنامه ----------
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
