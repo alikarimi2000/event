@@ -1,18 +1,18 @@
-# از یک ایمیج رسمی پایتون استفاده می‌کنیم
 FROM python:3.11-slim
 
-# تنظیم دایرکتوری کاری
+# Set working directory
 WORKDIR /app
 
-# کپی کردن فایل‌ها به داخل کانتینر
+# Copy application code
 COPY . /app
 
-# نصب وابستگی‌ها
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies
+RUN pip install --no-cache-dir Flask pony flask-cors psycopg2-binary
 
-# باز کردن پورت
+# Expose the Flask port
 EXPOSE 5000
 
-# اجرای اپلیکیشن
+# Run the application
 CMD ["python", "app.py"]
+
 
