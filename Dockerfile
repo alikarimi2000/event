@@ -7,21 +7,21 @@ WORKDIR /app
 # Install OS-level dependencies for psycopg2
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-       build-essential \
-       libpq-dev && \
+        build-essential \
+        libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy only requirements file first for better caching
-COPY req.txt /app/req.txt
+# Copy requirements file first for better caching
+COPY req.txt ./req.txt
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r /app/req.txt
+# Install Python dependencies (make sure gunicorn is in req.txt)
+RUN pip install --no-cache-dir -r req.txt
 
-# Copy application code
-COPY . /app
+# Copy the rest of the application code
+COPY . .
 
-# Expose the Flask default port
+# Expose the port your app will run on
 EXPOSE 5000
 
-# Run the Flask application
-CMD ["python", "app.py"]
+# Start the app using Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
