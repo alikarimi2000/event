@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Registration</title>
+    <link rel="stylesheet" href="cloud.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 data-lang="heading">Event Registration</h1>
+            <div class="lang-switch">
+                <button onclick="toggleLanguage('fa')">فارسی</button>
+                <button onclick="toggleLanguage('en')">English</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="registration-form">
+        <div class="container">
+            <h2 data-lang="subheading">Please fill out the form below</h2>
+            <form id="registerForm">
+                <label for="name" data-lang="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+                <label for="email" data-lang="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+                <label for="phone" data-lang="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+
+                <label for="event" data-lang="event">Event</label>
+                <select id="event" name="event">
+                    <option value="web" data-lang="web">Web Development Course</option>
+                    <option value="android" data-lang="android">Android Development Course</option>
+                    <option value="python" data-lang="python">Python Development Course</option>
+                </select>
+
+                <button type="submit" data-lang="submit">Register</button>
+            </form>
+            <p id="message"></p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p data-lang="footer">All rights reserved &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script>
+        // Translations
+        const translations = {
+            en: {
+                heading: "Event Registration",
+                subheading: "Please fill out the form below",
+                name: "Full Name",
+                email: "Email",
+                phone: "Phone Number",
+                event: "Event",
+                web: "Web Development Course",
+                android: "Android Development Course",
+                python: "Python Development Course",
+                submit: "Register",
+                footer: "All rights reserved © 2025",
+                success: "Registration successful!",
+                error: "Please fill in all fields correctly."
+            },
+            fa: {
+                heading: "ثبت‌نام رویداد",
+                subheading: "لطفاً فرم زیر را تکمیل کنید",
+                name: "نام و نام خانوادگی",
+                email: "ایمیل",
+                phone: "شماره تلفن",
+                event: "دوره مورد نظر",
+                web: "دوره برنامه‌نویسی وب",
+                android: "دوره برنامه‌نویسی اندروید",
+                python: "دوره برنامه‌نویسی پایتون",
+                submit: "ثبت‌نام",
+                footer: "تمامی حقوق محفوظ است © 2025",
+                success: "ثبت‌نام با موفقیت انجام شد!",
+                error: "لطفاً همه فیلدها را به درستی پر کنید."
+            }
+        };
+
+        let currentLang = 'en';
+
+        function toggleLanguage(language) {
+            currentLang = language;
+            document.documentElement.lang = language;
+            document.body.dir = (language === 'fa') ? 'rtl' : 'ltr';
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                el.textContent = translations[language][key];
+            });
+        }
+
+        // Form submission with Fetch
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/register', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            const messageEl = document.getElementById('message');
+            if (response.ok) {
+                messageEl.textContent = translations[currentLang].success;
+                messageEl.className = 'success';
+                this.reset();
+            } else {
+                messageEl.textContent = translations[currentLang].error;
+                messageEl.className = 'error';
+            }
+        });
+
+        // Initialize default language
+        toggleLanguage('en');
+    </script>
+</body>
+</html>
