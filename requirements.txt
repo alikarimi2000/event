@@ -1,0 +1,4 @@
+Flask
+pony
+flask-cors
+psycopg2-binary

@@ -1,28 +1,18 @@
-# ── ۱. ایمیج پایه: پایتون ۳.۹ سبک
-FROM python:3.9-slim
+# از یک ایمیج رسمی پایتون استفاده می‌کنیم
+FROM python:3.11-slim
 
-# ── ۲. تنظیم دایرکتوری کاری داخل کانتینر  ببب
+# تنظیم دایرکتوری کاری
 WORKDIR /app
 
-# ── ۳. کپی کل سورس‌کد و قالب‌ها
+# کپی کردن فایل‌ها به داخل کانتینر
 COPY . /app
 
-# ── ۴. نصب وابستگی‌های سیستمی برای psycopg2
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-      gcc \
-      libpq-dev && \
-    rm -rf /var/lib/apt/lists/*
+# نصب وابستگی‌ها
+RUN pip install --no-cache-dir -r requirements.txt
 
-# ── ۵. نصب پکیج‌های پایتونی مورد نیاز
-RUN pip install --no-cache-dir \
-      flask \
-      flask-cors \
-      pony \
-      psycopg2-binary
-
-# ── ۶. مستندسازی پورتی که Flask روش گوش می‌دهد
+# باز کردن پورت
 EXPOSE 5000
 
-# ── ۷. فرمان پیش‌فرض برای اجرای اپ
+# اجرای اپلیکیشن
 CMD ["python", "app.py"]
+
